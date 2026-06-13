@@ -398,10 +398,11 @@ const Portfolio = () => {
                 {item.label}
               </button>
             ))}
-            {/* RESUME DOWNLOAD BUTTON */}
+            {/* RESUME VIEW BUTTON */}
             <a
               href="/resume/Srikanth_CV_Final.pdf"
-              download
+              target="_blank"
+              rel="noopener noreferrer"
               style={{
                 background: 'linear-gradient(135deg, #10b981, #06b6d4)',
                 color: 'white',
@@ -855,7 +856,7 @@ const Portfolio = () => {
               </div>
               <div style={{ padding: '1.5rem', background: 'var(--color-background-secondary)', borderRadius: 'var(--border-radius-lg)' }}>
                 <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 0.5rem', fontWeight: '500', textTransform: 'uppercase' }}>Phone</p>
-                <p style={{ fontSize: '16px', color: 'var(--color-text-primary)', margin: 0, fontWeight: '500' }}>+91 64648300</p>
+                <p style={{ fontSize: '16px', color: 'var(--color-text-primary)', margin: 0, fontWeight: '500' }}>+91 9164658300</p>
               </div>
               <div style={{ padding: '1.5rem', background: 'var(--color-background-secondary)', borderRadius: 'var(--border-radius-lg)' }}>
                 <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 1rem', fontWeight: '500', textTransform: 'uppercase' }}>Connect</p>
@@ -877,15 +878,6 @@ const Portfolio = () => {
                       fontSize: '13px', fontWeight: '600'
                     }}>
                     LinkedIn
-                  </a>
-                  <a href="/resume/Srikanth_CV_Final.pdf" download
-                    style={{
-                      padding: '0.75rem 1.5rem',
-                      background: 'linear-gradient(135deg, #10b981, #06b6d4)',
-                      color: 'white', borderRadius: 'var(--border-radius-md)',
-                      fontSize: '13px', fontWeight: '600'
-                    }}>
-                    📄 Resume
                   </a>
                 </div>
               </div>
