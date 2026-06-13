@@ -82,9 +82,11 @@ const CertificateModal = ({ cert, onClose }) => {
           background: 'var(--color-background-primary)',
           borderRadius: 'var(--border-radius-xl)',
           padding: '1.5rem',
-          maxWidth: '600px',
+          maxWidth: '700px',
           width: '100%',
-          maxHeight: '85vh',
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
           overflowY: 'auto',
           textAlign: 'center',
           boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
@@ -95,11 +97,19 @@ const CertificateModal = ({ cert, onClose }) => {
             <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', fontWeight: '600' }}>
               {cert.title}
             </h3>
-            <img
+            <iframe
               src={cert.image}
-              alt={cert.title}
-              style={{ width: '100%', borderRadius: 'var(--border-radius-md)', border: '1px solid var(--color-border-tertiary)' }}
+              title={cert.title}
+              style={{ width: '100%', height: '70vh', border: '1px solid var(--color-border-tertiary)', borderRadius: 'var(--border-radius-md)' }}
             />
+            <a
+              href={cert.image}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ marginTop: '0.75rem', fontSize: '13px', color: 'var(--color-accent-blue)', fontWeight: '500' }}
+            >
+              Open in new tab ?
+            </a>
           </>
         ) : (
           <div style={{ padding: '3rem 1rem' }}>
@@ -231,19 +241,19 @@ const Portfolio = () => {
       title: 'Embracing Data Structures & Algorithms for Project Development',
       icon: '📊',
       completed: true,
-      image: '/certificates/dsa-cert.png'
+      image: '/certificates/dsa-cert.pdf'
     },
     {
       title: 'Fundamentals of Cybersecurity (Stage 1)',
       icon: '🔐',
       completed: true,
-      image: '/certificates/cybersec-stage1.png'
+      image: '/certificates/cybersec-stage1.pdf'
     },
     {
       title: 'Cybersecurity Essentials – Ethical Hacking (Stage 2)',
       icon: '🎯',
       completed: true,
-      image: '/certificates/cybersec-stage2.png'
+      image: '/certificates/cybersec-stage2.pdf'
     },
     {
       title: 'Ethical Hacking (Udemy)',
@@ -372,7 +382,7 @@ const Portfolio = () => {
             <h1 style={{ fontSize: '48px', marginBottom: '1rem', color: 'var(--color-text-primary)', fontWeight: '700' }}>
               B C Srikanth
             </h1>
-            <p style={{ fontSize: '20px', color: 'var(--color-text-secondary)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+            <p style={{ fontSize: '20px', color: 'var(--color-text-secondary)', marginBottom: '2rem', maxWidth: '700px', margin: '0 auto 2rem' }}>
               Computer Science Student | Cybersecurity & Data Science Enthusiast | Full-Stack Developer
             </p>
 
@@ -825,3 +835,4 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
+
