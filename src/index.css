@@ -148,3 +148,8 @@ a:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-secondary);
 }
+
+@keyframes gridMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 40px 40px; }
+}

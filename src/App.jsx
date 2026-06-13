@@ -58,6 +58,73 @@ const AnimatedCounter = ({ target, duration = 2000, suffix = '' }) => {
   return `${count}${suffix}`;
 };
 
+const TypingText = ({ texts, speed = 80, pause = 1500 }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [textIndex, setTextIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentText = texts[textIndex];
+    let timeout;
+
+    if (!isDeleting && displayText.length < currentText.length) {
+      timeout = setTimeout(() => {
+        setDisplayText(currentText.slice(0, displayText.length + 1));
+      }, speed);
+    } else if (!isDeleting && displayText.length === currentText.length) {
+      timeout = setTimeout(() => setIsDeleting(true), pause);
+    } else if (isDeleting && displayText.length > 0) {
+      timeout = setTimeout(() => {
+        setDisplayText(currentText.slice(0, displayText.length - 1));
+      }, speed / 2);
+    } else if (isDeleting && displayText.length === 0) {
+      setIsDeleting(false);
+      setTextIndex((textIndex + 1) % texts.length);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, textIndex, texts, speed, pause]);
+
+  return (
+    <span>
+      {displayText}
+      <span style={{ borderRight: '2px solid var(--color-accent-blue)', marginLeft: '2px', animation: 'pulse 0.8s infinite' }}>&nbsp;</span>
+    </span>
+  );
+};
+
+const FadeInSection = ({ children, delay = 0 }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = React.useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => setIsVisible(true), delay);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [delay]);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: isVisible ? 1 : 0,
+        transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+        transition: 'opacity 0.6s ease-out, transform 0.6s ease-out'
+      }}
+    >
+      {children}
+    </div>
+  );
+};
+
 // ====== CERTIFICATE MODAL ======
 const CertificateModal = ({ cert, onClose }) => {
   if (!cert) return null;
@@ -357,8 +424,20 @@ const Portfolio = () => {
       {/* Hero Section */}
       {activeSection === 'home' && (
         <div style={{ position: 'relative', overflow: 'hidden' }}>
+          {/* Circuit/Grid Background */}
+          <div style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            opacity: 0.08,
+            zIndex: 0,
+            backgroundImage: `linear-gradient(var(--color-accent-blue) 1px, transparent 1px), linear-gradient(90deg, var(--color-accent-blue) 1px, transparent 1px)`,
+            backgroundSize: '40px 40px',
+            animation: 'gridMove 20s linear infinite'
+          }} />
           <div style={{
             maxWidth: '1200px',
+            position: 'relative',
+            zIndex: 1,
             margin: '0 auto',
             padding: '5rem 1.5rem',
             textAlign: 'center',
@@ -383,7 +462,7 @@ const Portfolio = () => {
               B C Srikanth
             </h1>
             <p style={{ fontSize: '20px', color: 'var(--color-text-secondary)', marginBottom: '2rem', maxWidth: '700px', margin: '0 auto 2rem' }}>
-              Computer Science Student | Cybersecurity & Data Science Enthusiast | Full-Stack Developer
+              <TypingText texts={["Computer Science Student", "Cybersecurity & Data Science Enthusiast", "Full-Stack Developer", "Blockchain Developer"]} />
             </p>
 
             {/* RESUME DOWNLOAD - prominent button */}
@@ -835,6 +914,8 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
+
+
 
 
 
