@@ -332,7 +332,7 @@ const Portfolio = () => {
               </button>
             ))}
             {/* RESUME DOWNLOAD BUTTON */}
-            
+            <a
               href="/resume/Srikanth_CV_Final.pdf"
               download
               style={{
@@ -388,7 +388,7 @@ const Portfolio = () => {
 
             {/* RESUME DOWNLOAD - prominent button */}
             <div style={{ marginBottom: '2rem' }}>
-              
+              <a
                 href="/resume/Srikanth_CV_Final.pdf"
                 download
                 style={{
@@ -835,4 +835,6 @@ const Portfolio = () => {
 };
 
 export default Portfolio;
+
+
 
