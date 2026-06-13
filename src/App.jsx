@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 const SkillBar = ({ name, percentage, delay = 0 }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [animatedWidth, setAnimatedWidth] = useState(0);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-      setTimeout(() => setAnimatedWidth(percentage), 50);
-    }, delay);
+    const timer = setTimeout(() => setAnimatedWidth(percentage), delay);
     return () => clearTimeout(timer);
   }, [delay, percentage]);
 
@@ -26,13 +22,12 @@ const SkillBar = ({ name, percentage, delay = 0 }) => {
         height: '8px',
         background: 'var(--color-background-tertiary)',
         borderRadius: '10px',
-        overflow: 'hidden',
-        position: 'relative'
+        overflow: 'hidden'
       }}>
         <div style={{
           height: '100%',
           width: `${animatedWidth}%`,
-          background: `linear-gradient(90deg, var(--color-accent-blue) 0%, var(--color-accent-purple) 100%)`,
+          background: 'linear-gradient(90deg, var(--color-accent-blue) 0%, var(--color-accent-purple) 100%)',
           borderRadius: '10px',
           transition: 'width 1s cubic-bezier(0.34, 1.56, 0.64, 1)',
           boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)'
@@ -63,50 +58,164 @@ const AnimatedCounter = ({ target, duration = 2000, suffix = '' }) => {
   return `${count}${suffix}`;
 };
 
+// ====== CERTIFICATE MODAL ======
+const CertificateModal = ({ cert, onClose }) => {
+  if (!cert) return null;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        background: 'rgba(0,0,0,0.7)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1.5rem'
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: 'var(--color-background-primary)',
+          borderRadius: 'var(--border-radius-xl)',
+          padding: '1.5rem',
+          maxWidth: '600px',
+          width: '100%',
+          maxHeight: '85vh',
+          overflowY: 'auto',
+          textAlign: 'center',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+        }}
+      >
+        {cert.completed ? (
+          <>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--color-text-primary)', fontWeight: '600' }}>
+              {cert.title}
+            </h3>
+            <img
+              src={cert.image}
+              alt={cert.title}
+              style={{ width: '100%', borderRadius: 'var(--border-radius-md)', border: '1px solid var(--color-border-tertiary)' }}
+            />
+          </>
+        ) : (
+          <div style={{ padding: '3rem 1rem' }}>
+            <div style={{ fontSize: '48px', marginBottom: '1rem' }}>🚧</div>
+            <h3 style={{ marginBottom: '0.5rem', color: 'var(--color-text-primary)', fontWeight: '600' }}>
+              {cert.title}
+            </h3>
+            <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+              Coming Soon — this certificate is currently in progress.
+            </p>
+          </div>
+        )}
+        <button
+          onClick={onClose}
+          style={{
+            marginTop: '1.5rem',
+            padding: '0.6rem 1.5rem',
+            background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-purple))',
+            color: 'white',
+            border: 'none',
+            borderRadius: 'var(--border-radius-md)',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer'
+          }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Portfolio = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [scrolled, setScrolled] = useState(false);
+  const [selectedCert, setSelectedCert] = useState(null);
+  const [expandedProject, setExpandedProject] = useState(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // ====== PROJECTS (with expanded Cyber Defense System) ======
   const projects = [
     {
-      title: 'Cyber Defense System',
+      title: 'Cyber Defense System v3.0',
       semester: '6th Semester',
-      description: 'Full-stack cybersecurity platform with advanced threat detection',
-      details: 'FastAPI + React 18/Vite, SQLite, blockchain logging, face recognition, AI-based file scanner, login activity logging, role-based user blocking',
-      tags: ['FastAPI', 'React', 'SQLite', 'Blockchain', 'AI'],
-      color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      description: 'Full-stack cybersecurity platform with real-time threat monitoring',
+      details: 'A complete cybersecurity command center combining AI threat detection, blockchain-based logging, real-time SOC dashboard, and a Super Admin control panel.',
+      tags: ['FastAPI', 'React', 'SQLite', 'Blockchain', 'AI', 'Face Recognition'],
+      color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      expandable: true,
+      features: [
+        {
+          name: 'Secure Login System',
+          desc: '256-bit encrypted, Face ID protected, blockchain-logged authentication for Super Admin access.'
+        },
+        {
+          name: 'Super Admin Console',
+          desc: 'Full system control showing total users, admins, threats, blocked IPs, and live AI accuracy (94.2%).'
+        },
+        {
+          name: 'Real-Time Threat Map',
+          desc: 'Interactive world map plotting live attack origins (DDoS, XSS, Port Scans, Brute Force) with zoom and reset.'
+        },
+        {
+          name: 'Attack Logs & Analytics',
+          desc: 'Detailed logs with IP address, attack type, confidence score, location, and block status — tracked DDoS, SQL Injection, Port Scan, Brute Force, XSS, and Path Traversal attempts.'
+        },
+        {
+          name: 'AI Performance Metrics',
+          desc: 'Live model metrics — 94.1% accuracy, 0.99 F1 score, 0% false positive rate, 1.8ms average latency.'
+        },
+        {
+          name: 'AI File Vault Scanner',
+          desc: 'Upload, download, and share files with AI malware scanning before encryption (AES-256), entropy analysis, and threat scoring.'
+        },
+        {
+          name: 'Encrypted Admin Messaging',
+          desc: 'AES-256 encrypted messaging between Super Admin and other admins for secure internal communication.'
+        },
+        {
+          name: 'Admin Invite System',
+          desc: 'Super Admin can create and manage invites for new admin accounts with pending-invite tracking.'
+        }
+      ]
     },
     {
-      title: 'Decentralized Exam Result System',
-      semester: 'Group Project',
-      description: 'Blockchain-based secure exam result management',
-      details: 'Solidity smart contracts, Flask backend, MetaMask/Web3.js integration, per-semester subject sets, elective handling',
-      tags: ['Solidity', 'Flask', 'Web3.js', 'Smart Contracts'],
-      color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+      title: 'Decentralized Exam Result System (DERS)',
+      semester: 'Group Project — UE23CS3603',
+      description: 'Blockchain-based exam result management with tamper-proof records',
+      details: 'A decentralized platform for storing and verifying exam results using Solidity smart contracts, with MetaMask wallet integration for secure access.',
+      tags: ['Solidity', 'Flask', 'Web3.js', 'Smart Contracts', 'MetaMask'],
+      color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      expandable: false
     },
     {
       title: 'Remote Patient Monitoring (RPM)',
       semester: '5th Semester',
-      description: 'AR/VR-based healthcare monitoring system',
-      details: 'Immersive patient monitoring using AR/VR technology for real-time healthcare applications',
+      description: 'AR/VR-based patient monitoring for healthcare applications',
+      details: 'An immersive AR/VR system that allows healthcare providers to remotely monitor patient vitals and status in real time.',
       tags: ['AR/VR', 'Unity', 'Healthcare'],
-      color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+      color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      expandable: false
     },
     {
-      title: 'AI-Based Spam Classifier',
+      title: 'Spam Email Classification',
       semester: '4th Semester',
-      description: 'Machine learning classification system',
-      details: 'Advanced ML model for spam detection and email classification with NLP techniques',
-      tags: ['Python', 'ML', 'NLP'],
-      color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      description: 'Machine learning model for classifying spam and legitimate emails',
+      details: 'A scikit-learn based ML pipeline using NLP preprocessing and classification algorithms to detect spam emails with high accuracy.',
+      tags: ['Python', 'ML', 'NLP', 'scikit-learn'],
+      color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      expandable: false
     }
   ];
 
@@ -116,12 +225,41 @@ const Portfolio = () => {
     { category: 'Specializations', items: ['Cybersecurity', 'Blockchain', 'Machine Learning', 'Data Science'], proficiency: [92, 88, 85, 80] }
   ];
 
+  // ====== CERTIFICATIONS (clickable) ======
   const certifications = [
-    { title: 'Data Structures & Algorithms', icon: '📊' },
-    { title: 'Cybersecurity Essentials Stage 1 & 2', icon: '🔐' },
-    { title: 'Ethical Hacking', icon: '🎯' },
-    { title: 'Power BI Workshop', icon: '📈' },
-    { title: 'Mobile App Development', icon: '📱' }
+    {
+      title: 'Embracing Data Structures & Algorithms for Project Development',
+      icon: '📊',
+      completed: true,
+      image: '/certificates/dsa-cert.png'
+    },
+    {
+      title: 'Fundamentals of Cybersecurity (Stage 1)',
+      icon: '🔐',
+      completed: true,
+      image: '/certificates/cybersec-stage1.png'
+    },
+    {
+      title: 'Cybersecurity Essentials – Ethical Hacking (Stage 2)',
+      icon: '🎯',
+      completed: true,
+      image: '/certificates/cybersec-stage2.png'
+    },
+    {
+      title: 'Ethical Hacking (Udemy)',
+      icon: '🛡️',
+      completed: false
+    },
+    {
+      title: 'Power BI Workshop',
+      icon: '📈',
+      completed: false
+    },
+    {
+      title: 'Certificate in Mobile App Development (Beginner)',
+      icon: '📱',
+      completed: false
+    }
   ];
 
   const achievements = [
@@ -140,8 +278,8 @@ const Portfolio = () => {
   ];
 
   const stats = [
-    { label: 'Projects Completed', value: 6 },
-    { label: 'Certifications', value: 5 },
+    { label: 'Projects Completed', value: 4 },
+    { label: 'Certifications', value: 3 },
     { label: 'GitHub Contributions', value: 150 },
     { label: 'CGPA', value: '7.18' }
   ];
@@ -183,6 +321,25 @@ const Portfolio = () => {
                 {item.label}
               </button>
             ))}
+            {/* RESUME DOWNLOAD BUTTON */}
+            
+              href="/resume/Srikanth_CV_Final.pdf"
+              download
+              style={{
+                background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+                color: 'white',
+                fontSize: '14px',
+                padding: '0.5rem 1rem',
+                borderRadius: 'var(--border-radius-md)',
+                fontWeight: '600',
+                textDecoration: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem'
+              }}
+            >
+              📄 Resume
+            </a>
           </div>
         </div>
       </nav>
@@ -215,9 +372,35 @@ const Portfolio = () => {
             <h1 style={{ fontSize: '48px', marginBottom: '1rem', color: 'var(--color-text-primary)', fontWeight: '700' }}>
               B C Srikanth
             </h1>
-            <p style={{ fontSize: '20px', color: 'var(--color-text-secondary)', marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem' }}>
+            <p style={{ fontSize: '20px', color: 'var(--color-text-secondary)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
               Computer Science Student | Cybersecurity & Data Science Enthusiast | Full-Stack Developer
             </p>
+
+            {/* RESUME DOWNLOAD - prominent button */}
+            <div style={{ marginBottom: '2rem' }}>
+              
+                href="/resume/Srikanth_CV_Final.pdf"
+                download
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.85rem 2.2rem',
+                  background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+                  color: 'white',
+                  borderRadius: 'var(--border-radius-lg)',
+                  textDecoration: 'none',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)',
+                  transition: 'all var(--transition-fast)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                📄 Download Resume
+              </a>
+            </div>
 
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
@@ -241,7 +424,7 @@ const Portfolio = () => {
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href="https://github.com/Myselfsrikanth1481" target="_blank" rel="noopener noreferrer" 
+              <a href="https://github.com/Myselfsrikanth1481" target="_blank" rel="noopener noreferrer"
                 style={{
                   padding: '0.75rem 2rem',
                   background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-purple))',
@@ -251,12 +434,10 @@ const Portfolio = () => {
                   fontSize: '14px',
                   fontWeight: '600',
                   boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3)',
-                  transition: 'all var(--transition-fast)',
-                  transform: 'translateY(0)',
-                  cursor: 'pointer'
+                  transition: 'all var(--transition-fast)'
                 }}
-                onMouseEnter={(e) => e.target.style.transform = 'translateY(-4px)'}
-                onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 GitHub
               </a>
@@ -270,19 +451,17 @@ const Portfolio = () => {
                   textDecoration: 'none',
                   fontSize: '14px',
                   fontWeight: '600',
-                  transition: 'all var(--transition-fast)',
-                  transform: 'translateY(0)',
-                  cursor: 'pointer'
+                  transition: 'all var(--transition-fast)'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.transform = 'translateY(-4px)';
-                  e.target.style.background = 'var(--color-accent-blue)';
-                  e.target.style.color = 'white';
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.background = 'var(--color-accent-blue)';
+                  e.currentTarget.style.color = 'white';
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.background = 'var(--color-background-secondary)';
-                  e.target.style.color = 'var(--color-accent-blue)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.background = 'var(--color-background-secondary)';
+                  e.currentTarget.style.color = 'var(--color-accent-blue)';
                 }}
               >
                 LinkedIn
@@ -302,8 +481,7 @@ const Portfolio = () => {
               padding: '2rem',
               borderRadius: 'var(--border-radius-xl)',
               border: '1px solid var(--color-border-secondary)',
-              lineHeight: '1.8',
-              color: 'var(--color-text-primary)'
+              lineHeight: '1.8'
             }}>
               <h3 style={{ fontSize: '18px', marginBottom: '1rem', color: 'var(--color-accent-blue)', fontWeight: '600' }}>Background</h3>
               <p>I'm a B.Tech Computer Science student at GM University, Davangere, currently in my 6th semester with a focus on cybersecurity, blockchain, and data science. I'm passionate about building secure, scalable applications.</p>
@@ -313,8 +491,7 @@ const Portfolio = () => {
               padding: '2rem',
               borderRadius: 'var(--border-radius-xl)',
               border: '1px solid var(--color-border-secondary)',
-              lineHeight: '1.8',
-              color: 'var(--color-text-primary)'
+              lineHeight: '1.8'
             }}>
               <h3 style={{ fontSize: '18px', marginBottom: '1rem', color: 'var(--color-accent-purple)', fontWeight: '600' }}>Experience</h3>
               <p>With hands-on experience in full-stack development, machine learning, and cybersecurity, I've worked on various projects combining theory with practical implementation. I actively contribute to open-source projects.</p>
@@ -324,8 +501,7 @@ const Portfolio = () => {
               padding: '2rem',
               borderRadius: 'var(--border-radius-xl)',
               border: '1px solid var(--color-border-secondary)',
-              lineHeight: '1.8',
-              color: 'var(--color-text-primary)'
+              lineHeight: '1.8'
             }}>
               <h3 style={{ fontSize: '18px', marginBottom: '1rem', color: 'var(--color-accent-pink)', fontWeight: '600' }}>Learning</h3>
               <p>I'm continuously upskilling through certifications and workshops. When not coding, I explore emerging technologies, contribute to communities, and work on innovative projects that solve real-world problems.</p>
@@ -346,32 +522,12 @@ const Portfolio = () => {
                 overflow: 'hidden',
                 border: '1px solid var(--color-border-tertiary)',
                 transition: 'all var(--transition-smooth)',
-                transform: 'translateY(0)',
                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
-                cursor: 'pointer',
                 animation: `fadeInUp 0.6s ease-out ${idx * 0.1}s both`
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-8px)';
-                e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.05)';
-              }}
-              >
-                <div style={{
-                  height: '160px',
-                  background: project.color,
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}>
+              }}>
+                <div style={{ height: '160px', background: project.color, position: 'relative', overflow: 'hidden' }}>
                   <div style={{
-                    position: 'absolute',
-                    top: '-50%',
-                    left: '-50%',
-                    width: '200%',
-                    height: '200%',
+                    position: 'absolute', top: '-50%', left: '-50%', width: '200%', height: '200%',
                     background: 'radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px)',
                     backgroundSize: '20px 20px',
                     animation: 'float 20s ease-in-out infinite'
@@ -383,12 +539,9 @@ const Portfolio = () => {
                       {project.title}
                     </h3>
                     <span style={{
-                      fontSize: '11px',
-                      color: 'var(--color-text-secondary)',
-                      background: 'var(--color-background-tertiary)',
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '20px',
-                      whiteSpace: 'nowrap'
+                      fontSize: '11px', color: 'var(--color-text-secondary)',
+                      background: 'var(--color-background-tertiary)', padding: '0.25rem 0.75rem',
+                      borderRadius: '20px', whiteSpace: 'nowrap'
                     }}>
                       {project.semester}
                     </span>
@@ -399,20 +552,59 @@ const Portfolio = () => {
                   <p style={{ fontSize: '12px', color: 'var(--color-text-tertiary)', margin: '0.75rem 0', fontStyle: 'italic' }}>
                     {project.details}
                   </p>
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem', marginBottom: project.expandable ? '1rem' : 0 }}>
                     {project.tags.map((tag, tagIdx) => (
                       <span key={tagIdx} style={{
-                        fontSize: '11px',
-                        background: 'var(--color-background-tertiary)',
-                        color: 'var(--color-accent-blue)',
-                        padding: '0.35rem 0.75rem',
-                        borderRadius: '20px',
-                        fontWeight: '500'
+                        fontSize: '11px', background: 'var(--color-background-tertiary)',
+                        color: 'var(--color-accent-blue)', padding: '0.35rem 0.75rem',
+                        borderRadius: '20px', fontWeight: '500'
                       }}>
                         {tag}
                       </span>
                     ))}
                   </div>
+
+                  {/* EXPANDABLE DETAILS FOR CYBER DEFENSE SYSTEM */}
+                  {project.expandable && (
+                    <>
+                      <button
+                        onClick={() => setExpandedProject(expandedProject === idx ? null : idx)}
+                        style={{
+                          width: '100%',
+                          padding: '0.6rem',
+                          background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-purple))',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 'var(--border-radius-md)',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {expandedProject === idx ? 'Hide Details ▲' : 'View Module Breakdown ▼'}
+                      </button>
+
+                      {expandedProject === idx && (
+                        <div style={{ marginTop: '1rem', display: 'grid', gap: '0.75rem' }}>
+                          {project.features.map((feature, fIdx) => (
+                            <div key={fIdx} style={{
+                              background: 'var(--color-background-primary)',
+                              border: '1px solid var(--color-border-tertiary)',
+                              borderRadius: 'var(--border-radius-md)',
+                              padding: '0.85rem 1rem'
+                            }}>
+                              <p style={{ fontSize: '13px', fontWeight: '600', color: 'var(--color-text-primary)', margin: 0 }}>
+                                {feature.name}
+                              </p>
+                              <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0.35rem 0 0', lineHeight: '1.5' }}>
+                                {feature.desc}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -434,12 +626,8 @@ const Portfolio = () => {
                 animation: `fadeInUp 0.6s ease-out ${groupIdx * 0.15}s both`
               }}>
                 <h3 style={{
-                  fontSize: '18px',
-                  marginBottom: '1.5rem',
-                  color: 'var(--color-text-primary)',
-                  fontWeight: '600',
-                  paddingBottom: '1rem',
-                  borderBottom: '2px solid var(--color-border-secondary)'
+                  fontSize: '18px', marginBottom: '1.5rem', color: 'var(--color-text-primary)',
+                  fontWeight: '600', paddingBottom: '1rem', borderBottom: '2px solid var(--color-border-secondary)'
                 }}>
                   {skillGroup.category}
                 </h3>
@@ -463,8 +651,7 @@ const Portfolio = () => {
               background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
               padding: '2rem',
               borderRadius: 'var(--border-radius-xl)',
-              border: '2px solid var(--color-accent-blue)',
-              animation: 'fadeInUp 0.6s ease-out'
+              border: '2px solid var(--color-accent-blue)'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div>
@@ -472,12 +659,8 @@ const Portfolio = () => {
                   <p style={{ margin: '0.5rem 0 0', fontSize: '14px', color: 'var(--color-text-secondary)' }}>GM University, Davangere</p>
                 </div>
                 <span style={{
-                  fontSize: '13px',
-                  background: 'var(--color-accent-blue)',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '20px',
-                  fontWeight: '500'
+                  fontSize: '13px', background: 'var(--color-accent-blue)', color: 'white',
+                  padding: '0.5rem 1rem', borderRadius: '20px', fontWeight: '500'
                 }}>
                   2023 – Present
                 </span>
@@ -488,25 +671,46 @@ const Portfolio = () => {
             </div>
           </div>
 
+          {/* CLICKABLE CERTIFICATIONS */}
           <div>
-            <h3 style={{ fontSize: '22px', marginBottom: '1.5rem', color: 'var(--color-text-primary)', fontWeight: '600' }}>Certifications</h3>
+            <h3 style={{ fontSize: '22px', marginBottom: '0.5rem', color: 'var(--color-text-primary)', fontWeight: '600' }}>Certifications</h3>
+            <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+              Click any certificate to view it. Items marked "Upcoming" are in progress.
+            </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
               {certifications.map((cert, idx) => (
-                <div key={idx} style={{
-                  background: 'var(--color-background-secondary)',
-                  padding: '1.5rem',
-                  borderRadius: 'var(--border-radius-lg)',
-                  border: '1px solid var(--color-border-tertiary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  transition: 'all var(--transition-smooth)',
-                  animation: `fadeInUp 0.6s ease-out ${idx * 0.1}s both`
-                }}>
+                <div
+                  key={idx}
+                  onClick={() => setSelectedCert(cert)}
+                  style={{
+                    background: 'var(--color-background-secondary)',
+                    padding: '1.5rem',
+                    borderRadius: 'var(--border-radius-lg)',
+                    border: cert.completed ? '1px solid var(--color-border-tertiary)' : '1px dashed var(--color-text-tertiary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    cursor: 'pointer',
+                    transition: 'all var(--transition-smooth)',
+                    animation: `fadeInUp 0.6s ease-out ${idx * 0.1}s both`,
+                    opacity: cert.completed ? 1 : 0.75
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                >
                   <div style={{ fontSize: '32px' }}>{cert.icon}</div>
-                  <p style={{ fontSize: '14px', color: 'var(--color-text-primary)', margin: 0, fontWeight: '500' }}>
-                    {cert.title}
-                  </p>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: '14px', color: 'var(--color-text-primary)', margin: 0, fontWeight: '500' }}>
+                      {cert.title}
+                    </p>
+                    <span style={{
+                      fontSize: '11px',
+                      color: cert.completed ? '#10b981' : 'var(--color-text-tertiary)',
+                      fontWeight: '600'
+                    }}>
+                      {cert.completed ? '✓ View Certificate' : '⏳ Upcoming'}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -545,13 +749,10 @@ const Portfolio = () => {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1.5rem', animation: 'fadeInUp 0.6s ease-out' }}>
           <h2 style={{ fontSize: '32px', marginBottom: '2rem', textAlign: 'center', color: 'var(--color-text-primary)', fontWeight: '700' }}>Get in Touch</h2>
           <div style={{
-            maxWidth: '500px',
-            margin: '0 auto',
+            maxWidth: '500px', margin: '0 auto',
             background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
-            padding: '2.5rem',
-            borderRadius: 'var(--border-radius-xl)',
-            border: '1px solid var(--color-border-secondary)',
-            textAlign: 'center'
+            padding: '2.5rem', borderRadius: 'var(--border-radius-xl)',
+            border: '1px solid var(--color-border-secondary)', textAlign: 'center'
           }}>
             <p style={{ fontSize: '16px', color: 'var(--color-text-primary)', marginBottom: '2rem', lineHeight: '1.8' }}>
               I'm always interested in new projects and opportunities. Let's connect and create something amazing together!
@@ -559,13 +760,7 @@ const Portfolio = () => {
             <div style={{ display: 'grid', gap: '1.5rem' }}>
               <div style={{ padding: '1.5rem', background: 'var(--color-background-secondary)', borderRadius: 'var(--border-radius-lg)' }}>
                 <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 0.5rem', fontWeight: '500', textTransform: 'uppercase' }}>Email</p>
-                <a href="mailto:bcsrikanth901@gmail.com" style={{
-                  fontSize: '16px',
-                  color: 'var(--color-accent-blue)',
-                  textDecoration: 'none',
-                  fontWeight: '500',
-                  transition: 'all var(--transition-fast)'
-                }}>
+                <a href="mailto:bcsrikanth901@gmail.com" style={{ fontSize: '16px', color: 'var(--color-accent-blue)', fontWeight: '500' }}>
                   bcsrikanth901@gmail.com
                 </a>
               </div>
@@ -580,37 +775,28 @@ const Portfolio = () => {
                     style={{
                       padding: '0.75rem 1.5rem',
                       background: 'linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-purple))',
-                      color: 'white',
-                      borderRadius: 'var(--border-radius-md)',
-                      textDecoration: 'none',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      transition: 'all var(--transition-fast)',
-                      transform: 'scale(1)',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
+                      color: 'white', borderRadius: 'var(--border-radius-md)',
+                      fontSize: '13px', fontWeight: '600'
+                    }}>
                     GitHub
                   </a>
                   <a href="https://www.linkedin.com/in/b-c-srikanth-71b451299" target="_blank" rel="noopener noreferrer"
                     style={{
                       padding: '0.75rem 1.5rem',
                       background: 'linear-gradient(135deg, var(--color-accent-purple), var(--color-accent-pink))',
-                      color: 'white',
-                      borderRadius: 'var(--border-radius-md)',
-                      textDecoration: 'none',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      transition: 'all var(--transition-fast)',
-                      transform: 'scale(1)',
-                      cursor: 'pointer'
-                    }}
-                    onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-                  >
+                      color: 'white', borderRadius: 'var(--border-radius-md)',
+                      fontSize: '13px', fontWeight: '600'
+                    }}>
                     LinkedIn
+                  </a>
+                  <a href="/resume/Srikanth_CV_Final.pdf" download
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'linear-gradient(135deg, #10b981, #06b6d4)',
+                      color: 'white', borderRadius: 'var(--border-radius-md)',
+                      fontSize: '13px', fontWeight: '600'
+                    }}>
+                    📄 Resume
                   </a>
                 </div>
               </div>
@@ -631,6 +817,9 @@ const Portfolio = () => {
           Designed & Developed by B C Srikanth © 2024 | All rights reserved
         </p>
       </footer>
+
+      {/* Certificate Modal */}
+      <CertificateModal cert={selectedCert} onClose={() => setSelectedCert(null)} />
     </div>
   );
 };
